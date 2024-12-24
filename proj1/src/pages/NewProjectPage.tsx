@@ -1,11 +1,14 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import "@/app/globals.css"
+import axios from "axios";
+import { Project } from "@prisma/client";
 
 function NewProjectsPage() {
     const [formData, setFormData] = useState({
-        projectId: "",
-        projectName: "",
+        id: "",
+        name: "",
     });
     const router = useRouter();
 
@@ -15,13 +18,27 @@ function NewProjectsPage() {
         setFormData((prevState) => ({ ...prevState, [fieldName]: fieldValue }));
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log(formData);
-        router.push({
-            pathname: '/ProjectPage',
-            query: formData
-        });
+
+        try {
+            const data ={name:formData.name, createdAt: new Date(), nodes: [], elements:[]}
+            const response = await axios.post('/api/projects', data);
+            alert(`Project created: ${JSON.stringify(response.data)}`)
+            router.push({
+                pathname: '/ProjectPage',
+                query: {
+                    project: JSON.stringify(response.data), // Pass project as a JSON string
+                  },
+            });
+         }
+        catch(error) {
+            console.error("error creating project ", error)
+            alert('durashechka')
+         }
+
+        
     };
 
     return (
@@ -32,7 +49,7 @@ function NewProjectsPage() {
                     <input
                         id="projectId"
                         type="text"
-                        name="projectId"
+                        name="id"
                         onChange={handleInput}
                         className="p-2 border border-gray-300 rounded-lg"
                     />
@@ -42,7 +59,7 @@ function NewProjectsPage() {
                     <input
                         id="projectName"
                         type="text"
-                        name="projectName"
+                        name="name"
                         onChange={handleInput}
                         className="p-2 border border-gray-300 rounded-lg"
                     />
