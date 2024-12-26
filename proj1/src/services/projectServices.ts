@@ -4,7 +4,7 @@ export const createProject = async (data: {
   name: string;
   createdAt: Date;
   nodes: { name: string; coordinates: any }[]; 
-  elements: { name: string }[]; 
+  elements: { type: string,  }[]; 
 }) => {
   return await prisma.project.create({
     data: {

@@ -4,21 +4,28 @@ import type { NextApiRequest, NextApiResponse } from "next";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { id } = req.query;
     console.log(req.query)
-    const nodeId = parseInt(id as string, 10); 
+    const projectId = parseInt(id as string, 10); 
 
-  if (isNaN(nodeId)) {
+  if (isNaN(projectId)) {
     console.log("Invalid or missing ID parameter")
     return res.status(400).json({ message: "Invalid or missing ID parameter" });
   }
 
     try {
     if (req.method === "GET") {
-        const data = await prisma.node.findUnique({
-            where: { id: nodeId }, 
-            select: { coordinates: true }, 
-          });
+      const elements = await prisma.element.findMany({
+        where: { projectId: projectId},
+      });
+      const nodes = await prisma.node.findMany({
+        where: { projectId: projectId},
+      })
+      
+      const allData = {
+        elements: elements,
+        nodes: nodes
+      }
 
-      return res.status(200).json(data);
+      return res.status(200).json(allData);
     } else if (req.method === "POST") {
       console.log("im here")
 

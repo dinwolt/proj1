@@ -5,9 +5,10 @@ import { Project } from "@prisma/client";
 
 type NodeProps = {
     project: Project;
+    onFormSubmit:()=>void;
   };
 
-function AddNode({ project }: NodeProps) {
+function AddNode({ project, onFormSubmit }: NodeProps) {
     const [formData, setFormData] = useState({
         name: "",
         node_X: "",
@@ -23,7 +24,7 @@ function AddNode({ project }: NodeProps) {
     }
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        console.log(formData)
+        //console.log(formData)
         try {
             const { name, node_X, node_Y, node_Z } = formData;
             const coordinates = { x: Number(node_X), y: Number(node_Y), z: Number(node_Z) };
@@ -32,13 +33,13 @@ function AddNode({ project }: NodeProps) {
                 coordinates,
                 projectId: project.id,
               });
-            
+              onFormSubmit();
       
             
           } catch (error) {
             console.log(error)
           }
-        };
+        }
       
     
     return (

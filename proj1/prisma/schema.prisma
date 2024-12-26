@@ -16,7 +16,9 @@ datasource db {
 model Project {
   id Int @id @default(autoincrement())
   name String
-  createdAt DateTime 
+  description String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
   nodes Node[] 
   elements Element[] 
 }
@@ -27,13 +29,13 @@ model Node{
   coordinates Json
   project Project @relation(fields:[projectId], references:[id])
   projectId Int
-  element Element? @relation(fields:[elementId], references:[id])
-  elementId Int?
+  element Element[]
 }
 
 model Element{
   id Int  @id @default(autoincrement())
-  name String
+  name String @default("el")
+  type String
   project Project @relation(fields:[projectId], references:[id])
   projectId Int
   nodes Node[] 

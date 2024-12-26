@@ -6,7 +6,7 @@ import Link from "next/link";
 function HomePage() {
 
   function handleClick() {
-    console.log('i work');
+    //console.log('i work');
   }
 
   return (

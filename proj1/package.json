@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",
+    "@types/three": "^0.171.0",
     "axios": "^1.7.9",
     "next": "15.1.2",
     "prisma": "^6.1.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "three": "^0.171.0"
   },
   "devDependencies": {
     "@types/node": "^20",

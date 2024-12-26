@@ -38,7 +38,7 @@ function ProjectsPage() {
     fetchProjects()
   }, [])
 
-  if (loading) <p>Loading...</p>
+  if (loading) {return <p>Loading...</p>}
 
 
 
@@ -49,12 +49,13 @@ function ProjectsPage() {
         {
           projects.map((project) => (
             <button className="h-12 w-36 m-2 bg-white border border-black-100 rounded-lg shadow-md hover:bg-blue-500 hover:text-white focus:outline-none" onClick={() => {
-              router.push({
+              console.log(project);router.push({
                 pathname: '/ProjectPage',
                 query: {
-                  project: JSON.stringify(project), // Pass project as a JSON string
+                  
+                  project: JSON.stringify(project), 
                 },
-              })
+              });console.log("click")
             }}
             >
               {project.name}

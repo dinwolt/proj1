@@ -20,12 +20,13 @@ function NewProjectsPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(formData);
+        //console.log(formData);
 
         try {
             const data ={name:formData.name, createdAt: new Date(), nodes: [], elements:[]}
             const response = await axios.post('/api/projects', data);
             alert(`Project created: ${JSON.stringify(response.data)}`)
+            
             router.push({
                 pathname: '/ProjectPage',
                 query: {
