@@ -14,29 +14,31 @@ datasource db {
 }
 
 model Project {
-  id Int @id @default(autoincrement())
-  name String
+  id          Int       @id @default(autoincrement())
+  name        String @unique
   description String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  nodes Node[] 
-  elements Element[] 
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
+  nodes       Node[]
+  elements    Element[]
 }
 
-model Node{
-  id Int  @id @default(autoincrement())
-  name String
+model Node {
+  id          Int       @id @default(autoincrement())
+  name        String
   coordinates Json
-  project Project @relation(fields:[projectId], references:[id])
-  projectId Int
-  element Element[]
-}
+  project     Project   @relation(fields: [projectId], references: [id])
+  projectId   Int
+  elements    Element[] @relation("NodeToElement")
 
-model Element{
-  id Int  @id @default(autoincrement())
-  name String @default("el")
-  type String
-  project Project @relation(fields:[projectId], references:[id])
+  @@unique([name, projectId])  
+}
+model Element {
+  id        Int     @id @default(autoincrement())
+  name      String  @default("el") 
+  type      String
+  project   Project @relation(fields: [projectId], references: [id])
   projectId Int
-  nodes Node[] 
+  nodes     Node[]  @relation("NodeToElement")
+  @@unique([name, projectId])  
 }

@@ -38,14 +38,14 @@ function ProjectsPage() {
     fetchProjects()
   }, [])
 
-  if (loading) {return <p>Loading...</p>}
+  if (loading) {return <div className="flex flex-col justify-center items-center h-screen overflow-scroll p-5"> <h1>Loading...</h1></div>}
 
 
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen overflow-scroll p-5">
+    <div className="flex flex-col justify-center items-center h-screen overflow-scroll p-5 ">
       <h1>Choose a project</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+      <div className="grid grid-cols-1 my-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 bg-gray-100 rounded-lg shadow-lg">
         {
           projects.map((project) => (
             <button className="h-12 w-36 m-2 bg-white border border-black-100 rounded-lg shadow-md hover:bg-blue-500 hover:text-white focus:outline-none" onClick={() => {

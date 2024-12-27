@@ -14,6 +14,10 @@ type Node = {
     coordinates: JsonObject,
     projectId: number
 }
+type ProjectData={
+    elements: [];
+    nodes:[]
+}
 function AddElement({ project, onFormSubmit }: NodeProps) {
     const [nodeList, setNodeList] = useState<{ id: string; name: string }[]>([]);
     const [selectedList, setSelectedList] = useState<{ id: string; name: string }[]>([]);
@@ -24,14 +28,12 @@ function AddElement({ project, onFormSubmit }: NodeProps) {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await axios.get(`/api/elements/${project.id}`);
-                const elementNodes = response.data.map((item: { id: string; name: string }) => ({
-                    id: String(item.id),
-                    name: item.name,
-                }));
-                setFetchedNodes(response.data)
-                console.log(response.data)
-                setNodeList(response.data)
+                const response = await axios.get(`/api/projects/${project.id}`);
+                const projectData:ProjectData = response.data
+                
+                setFetchedNodes(projectData.nodes)
+                console.log(projectData.nodes)
+                setNodeList(projectData.nodes)
 
             }
             catch (error) {
@@ -59,23 +61,70 @@ function AddElement({ project, onFormSubmit }: NodeProps) {
         setSelectedList((prevList) => prevList.filter((node) => node.name !== nodeName));
         setNodeList((prevList) => [...prevList, { id: nodeId, name: nodeName }])
     };
-    const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleSubmit =  (e: React.MouseEvent<HTMLButtonElement>) => {
         const filteredNodes = selectedList.map((node) => Number(node.id))
-
-        try {
-            await axios.post("/api/elements", {
-                name: elementName,
-                type: "some type",
-                projectId: project.id,
-                nodes: filteredNodes,
-
-            });
-            onFormSubmit()
-
-
-        } catch (error) {
-            console.log(error)
-        }
+        type ElementType = "point"|"line" | "triangle" | "square";
+        let elementType = "unknown"
+        
+          const executeSubmit = async()=>{
+            try {
+                const response = await axios.post("/api/elements", {
+                    name: elementName,
+                    type: elementType,
+                    projectId: project.id,
+                    nodes: filteredNodes,
+    
+                });
+                console.log(response.data)
+                console.log(filteredNodes)
+                const elementId = response.data.id
+                for(const node of filteredNodes){
+                    console.log(node)
+                    const updateResponse =  await axios.put("/api/nodes/updateNodes",{
+                        nodeId: node,
+                        elementId: elementId
+                    })
+                    console.log(updateResponse.data)
+                   
+                }
+                onFormSubmit()
+    
+    
+            } catch (error) {
+                if (axios.isAxiosError(error) && error.response) {
+                    const data = error.response.data;
+                    if (data.error) {
+                      alert("Name of the node is taken, please create another name."); 
+                    } else {
+                        alert('Failed to create project. Please try again later.')
+                    }
+                  } else {
+                    alert('An unexpected error occurred. Please try again later.')
+                  }
+            }
+          }
+          switch (filteredNodes.length) {
+            case 1:
+                elementType = "point"
+                executeSubmit()
+                break
+            case 2:
+                elementType = "line"; 
+                executeSubmit()
+                break
+            case 3:
+                elementType = "triangle"; 
+                executeSubmit()
+                break
+            case 4:
+                elementType = "square"; 
+                executeSubmit()
+                break
+            default:
+                alert("yyou can't have more than 4 nodes in element")
+                break
+          }
+       
     };
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
         let fieldName: string = e.target.value

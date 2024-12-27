@@ -37,7 +37,16 @@ function AddNode({ project, onFormSubmit }: NodeProps) {
       
             
           } catch (error) {
-            console.log(error)
+            if (axios.isAxiosError(error) && error.response) {
+                const data = error.response.data;
+                if (data.error) {
+                  alert("Name of the node is taken, please create another name."); 
+                } else {
+                    alert('Failed to create project. Please try again later.')
+                }
+              } else {
+                alert('An unexpected error occurred. Please try again later.')
+              }
           }
         }
       

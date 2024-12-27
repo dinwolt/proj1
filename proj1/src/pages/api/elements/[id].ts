@@ -13,14 +13,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
     if (req.method === "GET") {
-      const elements = await prisma.node.findMany({
-        where: { projectId: projectId},
+      
+      const nodesWithCoordinates = await prisma.node.findMany({
+        where: {
+          elements: {
+            some: {
+              id: projectId, // Filter nodes associated with the given elementId
+            },
+          },
+        },
+        select: {
+          coordinates: true,
+          name:true // Retrieve only the coordinates field
+        },
       });
-      if (!elements || elements.length === 0) {
-        return res.status(404).json({ message: "No elements found for this project" });
-      }
+      
+      console.log(nodesWithCoordinates);
 
-      return res.status(200).json(elements);
+      return res.status(200).json(nodesWithCoordinates);
     } else if (req.method === "POST") {
       console.log("im here")
 

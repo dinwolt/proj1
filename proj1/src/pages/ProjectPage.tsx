@@ -51,10 +51,7 @@ function ProjectPage() {
 
             {formSubmitted ? (
                 <div className="flex flex-col justify-center items-center">
-                <div className="flex flex-col justify-center items-center w-[500px] h-[300px] my-6 border border-black">
-                    <p>DISPLAY</p>
-                    
-                </div>
+                
                 <AllData projectId={currentProject.id}></AllData>
                 </div>
             ) : (

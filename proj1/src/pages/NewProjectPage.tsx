@@ -25,18 +25,26 @@ function NewProjectsPage() {
         try {
             const data ={name:formData.name, createdAt: new Date(), nodes: [], elements:[]}
             const response = await axios.post('/api/projects', data);
-            alert(`Project created: ${JSON.stringify(response.data)}`)
+            alert(`Project created successfully`)
             
             router.push({
                 pathname: '/ProjectPage',
                 query: {
-                    project: JSON.stringify(response.data), // Pass project as a JSON string
+                    project: JSON.stringify(response.data), 
                   },
             });
          }
         catch(error) {
-            console.error("error creating project ", error)
-            alert('durashechka')
+            if (axios.isAxiosError(error) && error.response) {
+                const data = error.response.data;
+                if (data.error) {
+                  alert("Name of the project is taken, please create another name."); 
+                } else {
+                    alert('Failed to create project. Please try again later.')
+                }
+              } else {
+                alert('An unexpected error occurred. Please try again later.')
+              }
          }
 
         
@@ -45,16 +53,6 @@ function NewProjectsPage() {
     return (
         <div className="flex justify-center items-center h-screen p-5">
             <form onSubmit={handleSubmit} className="flex flex-col w-full max-w-md mx-auto p-6 bg-gray-100 rounded-lg shadow-lg">
-                <div className="flex flex-col mb-4">
-                    <label htmlFor="projectId" className="mb-2 text-lg">프로젝트 ID</label>
-                    <input
-                        id="projectId"
-                        type="text"
-                        name="id"
-                        onChange={handleInput}
-                        className="p-2 border border-gray-300 rounded-lg"
-                    />
-                </div>
                 <div className="flex flex-col mb-4">
                     <label htmlFor="projectName" className="mb-2 text-lg">프로젝트 이름</label>
                     <input
