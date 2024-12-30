@@ -61,7 +61,7 @@ export default function AllData({ projectId }: DataProps) {
     nodes: [],
   });
   const canvasRef = useRef<HTMLDivElement>(null)
-  const [intersectedName, setIntersectedName] = useState<string | null>(null); 
+  const [intersectedName, setIntersectedName] = useState<string | null>();
 
   const fetchAllData = async () => {
     try {
@@ -105,10 +105,11 @@ export default function AllData({ projectId }: DataProps) {
     const addPointsToScene = async () => {
       const allPoints: THREE.Vector3[] = [];
       const mousePosition = new THREE.Vector2()
-      window.addEventListener("mousemove", function (e) {
-        mousePosition.x = (e.clientX / w) * 2 - 1
-        mousePosition.y = (e.clientY / h) * 2 - 1
-      })
+      const canvasBounds = renderer.domElement.getBoundingClientRect();
+      window.addEventListener("mousemove", (e) => {
+        mousePosition.x = ((e.clientX - canvasBounds.left) / canvasBounds.width) * 2 - 1;
+        mousePosition.y = -((e.clientY - canvasBounds.top) / canvasBounds.height) * 2 + 1;
+      });
       const rayCaster = new THREE.Raycaster()
       const fetchPromises = fetchedData.elements.map(async (item) => {
         const points = await fetchCoordinates(item.id);
@@ -178,7 +179,7 @@ export default function AllData({ projectId }: DataProps) {
           const material = new THREE.MeshBasicMaterial({ color: 0x89e1f0, side: THREE.DoubleSide });
           const mesh = new THREE.Mesh(geometry, material);
           mesh.name = item.name
-          
+
           scene.add(mesh);
         }
       });
@@ -190,16 +191,17 @@ export default function AllData({ projectId }: DataProps) {
       const animate = () => {
         requestAnimationFrame(animate);
         renderer.render(scene, camera);
-        rayCaster.setFromCamera(mousePosition,camera)
+        rayCaster.setFromCamera(mousePosition, camera)
         const intersects = rayCaster.intersectObjects(scene.children)
         console.log(intersects)
         if (intersects.length > 0) {
-          const intersectedObject = intersects[0].object;
-          
-          setIntersectedName(intersectedObject.name); 
-          
+          const intersectedObject = intersects.find(obj => obj.object.name); 
+          if (intersectedObject) {
+            setIntersectedName(intersectedObject.object.name);
+          }
+
         } else {
-          
+          setIntersectedName(null)
         }
       };
       animate();
@@ -217,23 +219,23 @@ export default function AllData({ projectId }: DataProps) {
     <div>
       {fetchedData ? (
         <div className="flex flex-col justify-center items-center">
-         {fetchedData.nodes ?  (<div
+          {fetchedData.nodes ? (<div
             ref={canvasRef}
             className="w-[800px] h-[600px] my-3"
-            
-          />):<></>}
-          {intersectedName ? <p className="font-bold">{intersectedName}</p>: <p>ERROR</p>}
+
+          />) : <></>}
+          {intersectedName ? <p className="font-bold">Last element chosen: {intersectedName}</p> : <p></p>}
           <div className="flex flex-row w-auto h-auto justify-center items-center">
             <div className="flex flex-col mx-10 my-10 h-[300px] w-[200px] p-4 bg-gray-100 rounded-lg shadow-lg overflow-auto scrollbar-hide">
-            <p className="font-bold text-center my-1">Elements</p>
-            
+              <p className="font-bold text-center my-1">Elements</p>
+
               {fetchedData.elements ? fetchedData.elements.map((item, index) => (
                 <p className=" before:content-['🔷'] before:mr-2 bg-white shadow-md text-black m-2 h-auto rounded-lg p-1" key={index}>{item.name}</p>
-              )):<p>no Elements yet</p>}
+              )) : <p>no Elements yet</p>}
             </div>
             <div className="flex flex-col mx-10 my-10 h-[300px] w-[200px] p-4 bg-gray-100 rounded-lg shadow-lg overflow-auto scrollbar-hide">
               <p className="font-bold text-center my-1">Nodes</p>
-              {fetchedData.elements ?fetchedData.nodes.map((item, index) => (
+              {fetchedData.elements ? fetchedData.nodes.map((item, index) => (
                 <p className=" before:content-['📍'] before:mr-2 bg-white shadow-md text-black m-2 h-auto rounded-lg p-1"
                   key={index}
                   style={{
@@ -242,8 +244,8 @@ export default function AllData({ projectId }: DataProps) {
                 >
                   {item.name}
                 </p>
-               
-              )):<p>No Nodes yet</p>} 
+
+              )) : <p>No Nodes yet</p>}
             </div>
           </div>
         </div>
