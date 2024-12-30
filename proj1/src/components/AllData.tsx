@@ -219,7 +219,7 @@ export default function AllData({ projectId }: DataProps) {
     <div>
       {fetchedData ? (
         <div className="flex flex-col justify-center items-center">
-          {fetchedData.nodes ? (<div
+          {fetchedData.elements.length !=0 ? (<div
             ref={canvasRef}
             className="w-[800px] h-[600px] my-3"
 
