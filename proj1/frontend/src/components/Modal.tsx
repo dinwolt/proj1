@@ -22,18 +22,18 @@ const Modal: React.FC<ModalProps> = ({ showModal, setShowModal, projectId }) => 
 
   useEffect(() => {
     socket.on("connect", () => {
-      console.log("Connected to server");
+      console.log("Connected to server")
     });
 
     socket.on("response_data", (data: any) => {
-      console.log("Received data:", data);
-      setLoading(false);
+      console.log("Received data:", data)
+      setLoading(false)
 
       if (data.error) {
-        setError(data.error);
+        setError(data.error)
       } else {
-        setProjectStats(data);
-        setError(null);
+        setProjectStats(data)
+        setError(null)
       }
     });
 
@@ -45,21 +45,21 @@ const Modal: React.FC<ModalProps> = ({ showModal, setShowModal, projectId }) => 
 
   const fetchProjectData = async () => {
     if (!loading) {
-      setLoading(true);
-      setProjectStats(null);
-      setError(null);
-      console.log("Requesting project data for projectId:", projectId);
+      setLoading(true)
+      setProjectStats(null)
+      setError(null)
+      console.log("Requesting project data for projectId:", projectId)
       setTimeout(() => {
-        socket.emit("request_data", { projectId });
-      }, 1000);
+        socket.emit("request_data", { projectId })
+      }, 1000)
     }
   };
 
   useEffect(() => {
     if (showModal) {
-      fetchProjectData();
+      fetchProjectData()
     }
-  }, [showModal]);
+  }, [showModal])
 
   if (!showModal) return null;
 
