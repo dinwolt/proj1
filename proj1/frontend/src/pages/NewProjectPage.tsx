@@ -51,7 +51,7 @@ function NewProjectsPage() {
     };
 
     return (
-        <div className="flex justify-center items-center h-screen p-5">
+        <div className="flex justify-center items-center h-screen p-5 overflow-x-hidden">
             <form onSubmit={handleSubmit} className="flex flex-col w-full max-w-md mx-auto p-6 bg-gray-100 rounded-lg shadow-lg">
                 <div className="flex flex-col mb-4">
                     <label htmlFor="projectName" className="mb-2 text-lg">프로젝트 이름</label>

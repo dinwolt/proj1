@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react"
-import { io } from "socket.io-client"
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
 
-const socket = io("http://127.0.0.1:5000")
+const socket = io("http://127.0.0.1:5000");
 
 interface ModalProps {
   showModal: boolean;
@@ -16,56 +16,61 @@ type ProjectStats = {
 };
 
 const Modal: React.FC<ModalProps> = ({ showModal, setShowModal, projectId }) => {
-  const [projectStats, setProjectStats] = useState<ProjectStats | null>(null)
+  const [projectStats, setProjectStats] = useState<ProjectStats | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     socket.on("connect", () => {
-      console.log("Connected to server")
+      console.log("Connected to server");
     });
 
     socket.on("response_data", (data: any) => {
-      console.log("Received data:", data)
+      console.log("Received data:", data);
       setLoading(false);
 
       if (data.error) {
-        setError(data.error)
+        setError(data.error);
       } else {
-        setProjectStats(data)
-        setError(null)
+        setProjectStats(data);
+        setError(null);
       }
     });
 
     return () => {
-      socket.off("connect")
-      socket.off("response_data")
+      socket.off("connect");
+      socket.off("response_data");
     };
   }, []);
 
-  const fetchProjectData = () => {
+  const fetchProjectData = async () => {
     if (!loading) {
-      setLoading(true)
-      setProjectStats(null)
-      setError(null)
-      console.log("Requesting project data for projectId:", projectId)
-      socket.emit("request_data", { projectId })
+      setLoading(true);
+      setProjectStats(null);
+      setError(null);
+      console.log("Requesting project data for projectId:", projectId);
+      setTimeout(() => {
+        socket.emit("request_data", { projectId });
+      }, 1000);
     }
   };
 
   useEffect(() => {
     if (showModal) {
-      fetchProjectData()
+      fetchProjectData();
     }
   }, [showModal]);
 
-  if (!showModal) return null
+  if (!showModal) return null;
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
         {loading ? (
-          <p>Loading...</p>
+          <div className="flex flex-col items-center">
+            <div className="animate-spin rounded-full border-t-4 border-blue-600 w-16 h-16 mb-4"></div>
+            <p>Loading...</p>
+          </div>
         ) : error ? (
           <p>Error: {error}</p>
         ) : projectStats ? (

@@ -55,6 +55,17 @@ function ProjectPage() {
                 <div className="flex flex-col justify-center items-center">
 
                     <AllData projectId={currentProject.id}></AllData>
+                    <button
+                        onClick={() => setShowModal(true)}
+                        className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600"
+                    >
+                        Open Modal
+                    </button>
+                    <Modal
+                        showModal={showModal}
+                        setShowModal={setShowModal}
+                        projectId={currentProject.id}
+                    />
                 </div>
             ) : (
                 <>
@@ -62,17 +73,7 @@ function ProjectPage() {
                     {isElement && <AddElement project={currentProject} onFormSubmit={handleFormSubmit} />}
                 </>
             )}
-            <button
-                onClick={() => setShowModal(true)}
-                className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600"
-            >
-                Open Modal
-            </button>
-            <Modal
-                showModal={showModal}
-                setShowModal={setShowModal}
-                projectId={currentProject.id}
-            />
+
         </div>
 
 

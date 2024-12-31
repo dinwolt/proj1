@@ -43,7 +43,7 @@ function ProjectsPage() {
 
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen overflow-scroll p-5 ">
+    <div className="flex flex-col justify-center items-center h-screen overflow-scroll p-5 overflow-x-hidden">
       <h1>Choose a project</h1>
       <div className="grid grid-cols-1 my-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 bg-gray-100 rounded-lg shadow-lg">
         {

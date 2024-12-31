@@ -11,7 +11,7 @@ function HomePage() {
 
   return (
     
-    <div className="flex justify-center items-center space-x-4 flex-wrap h-screen">
+    <div className="flex justify-center items-center space-x-4 flex-wrap h-screen overflow-x-hidden">
     <Link href="/ProjectsPage">
       <button
         type="button"
