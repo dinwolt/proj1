@@ -31,5 +31,9 @@ export const createProject = async (data: {
 }
 
 export const getAllProjects = async () => {
-  return await prisma.project.findMany()
-}
+  return await prisma.project.findMany({
+    orderBy: {
+      updatedAt: 'desc', 
+    },
+  });
+};
