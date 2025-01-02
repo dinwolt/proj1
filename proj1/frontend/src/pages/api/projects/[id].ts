@@ -26,10 +26,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       return res.status(200).json(allData);
-    } else if (req.method === "POST") {
-      console.log("im here")
+    } else if (req.method === "DELETE") {
+      await prisma.element.deleteMany({
+        where: {projectId: projectId}
+       })
+       await prisma.node.deleteMany({
+        where: {projectId: projectId}
+       })
 
-    } else {
+      const deletedProject = await prisma.project.delete({
+          where: {id: projectId}
+      })
+       
+       return res.status(200).json({data: "Project is deleted successfully"})
+
+    } 
+    else {
       res.status(405).json({ message: "Method Not Allowed" });
     }
   } catch (error) {

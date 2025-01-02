@@ -2,8 +2,9 @@ import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
-
-
+import Modal from "./Modal";
+import AddNode from "./AddNode";
+import AddElement from "./AddElement";
 type DataProps = {
   projectId: number;
 };
@@ -25,7 +26,7 @@ type Node = {
 };
 function sceneSetup(canvasRef: React.RefObject<HTMLDivElement | null>, canvasWidth: number, canvasHeight: number): { scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer } {
   const scene = new THREE.Scene();
-
+  scene.clear();
 
   const camera = new THREE.PerspectiveCamera(
     15,
@@ -54,7 +55,9 @@ function sceneSetup(canvasRef: React.RefObject<HTMLDivElement | null>, canvasWid
 
 }
 
+
 export default function AllData({ projectId }: DataProps) {
+  
   let points;
   const [fetchedData, setFetchedData] = useState<ProjectData>({
     elements: [],
@@ -62,10 +65,29 @@ export default function AllData({ projectId }: DataProps) {
   });
   const canvasRef = useRef<HTMLDivElement>(null)
   const [intersectedName, setIntersectedName] = useState<string | null>();
+  const [updated, setUpdated] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalNodeId, setModalNodeId] = useState<number | null>(null);
+  const [selectedModal, setSelectedModal] = useState("")
+  
+  let chosen;
+
+  const closeModal = () => setIsModalOpen(false);
+  const openNodeModal = (id: number) => {
+    setModalNodeId(id);
+    setIsModalOpen(true);
+    setSelectedModal("node")
+  };
+  const openElementModal = (id: number) => {
+    setModalNodeId(id);
+    setIsModalOpen(true);
+    setSelectedModal("element")
+  };
 
   const fetchAllData = async () => {
     try {
       const response = await axios.get(`/api/projects/${projectId}`);
+      console.log("wok")
       setFetchedData(response.data);
     } catch (error) {
       console.error("Error fetching project data:", error);
@@ -90,16 +112,67 @@ export default function AllData({ projectId }: DataProps) {
       return [];
     }
   };
+  const onEditted = () => {
+    closeModal();  
+  };
+  const handleDelete = async (item:string, id:number)=>{
+    let response
+    try{
+      if(item == "nodes"){
+       response = await fetch(`/api/nodes/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: id }),
+      });
+      }
+      else{
+       response = await fetch(`/api/elements/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: id }), 
+        });
+      }
+      
+
+      if (response.ok) {
+        if (item === "nodes") {
+          setFetchedData((prevData) => ({
+            ...prevData,
+            nodes: prevData.nodes.filter((node) => node.id !== id),
+          }));
+        }
+  
+        else if (item === "elements") {
+          setFetchedData((prevData) => ({
+            ...prevData,
+            elements: prevData.elements.filter((element) => element.id !== id),
+          }));
+        }
+        setUpdated(true)
+      } else {
+        const data = await response.json();
+        alert(data.error)
+      }
+    }
+    catch(error){}
+  }
 
   useEffect(() => {
     fetchAllData();
-  }, [projectId]);
+  }, [projectId, isModalOpen]);
 
   useEffect(() => {
     if (!fetchedData.elements.length || !canvasRef.current) return;
+    while (canvasRef.current!.firstChild) {
+      canvasRef.current!.removeChild(canvasRef.current!.firstChild);
+    }
     const w = 800
     const h = 600
-    const { scene, camera, renderer } = sceneSetup(canvasRef, w, h)
+    let { scene, camera, renderer } = sceneSetup(canvasRef, w, h);
 
 
     const addPointsToScene = async () => {
@@ -111,6 +184,7 @@ export default function AllData({ projectId }: DataProps) {
         mousePosition.y = -((e.clientY - canvasBounds.top) / canvasBounds.height) * 2 + 1;
       });
       const rayCaster = new THREE.Raycaster()
+      
       const fetchPromises = fetchedData.elements.map(async (item) => {
         const points = await fetchCoordinates(item.id);
         console.log(`Element name: ${item.name} `)
@@ -186,7 +260,7 @@ export default function AllData({ projectId }: DataProps) {
 
       await Promise.all(fetchPromises);
 
-
+      
 
       const animate = () => {
         requestAnimationFrame(animate);
@@ -194,7 +268,7 @@ export default function AllData({ projectId }: DataProps) {
         rayCaster.setFromCamera(mousePosition, camera)
         const intersects = rayCaster.intersectObjects(scene.children)
         if (intersects.length > 0) {
-          const intersectedObject = intersects.find(obj => obj.object.name); 
+          const intersectedObject = intersects.find(obj => obj.object.name);
           if (intersectedObject) {
             setIntersectedName(intersectedObject.object.name);
           }
@@ -208,17 +282,15 @@ export default function AllData({ projectId }: DataProps) {
 
     addPointsToScene();
 
-    return () => {
-      scene.clear();
-      renderer.dispose();
-    };
-  }, [fetchedData.elements]);
+    
+  }, [fetchedData]);
+
 
   return (
     <div>
       {fetchedData ? (
         <div className="flex flex-col justify-center items-center">
-          {fetchedData.elements.length !=0 ? (<div
+          {fetchedData.elements.length != 0 ? (<div
             ref={canvasRef}
             className="w-[800px] h-[600px] my-3"
 
@@ -227,30 +299,72 @@ export default function AllData({ projectId }: DataProps) {
           <div className="flex flex-row w-auto h-auto justify-center items-center">
             <div className="flex flex-col mx-10 my-10 h-[300px] w-[200px] p-4 bg-gray-100 rounded-lg shadow-lg overflow-auto scrollbar-hide">
               <p className="font-bold text-center my-1">Elements</p>
-
-              {fetchedData.elements ? fetchedData.elements.map((item, index) => (
-                <p className=" before:content-['🔷'] before:mr-2 bg-white shadow-md text-black m-2 h-auto rounded-lg p-1" key={index}>{item.name}</p>
+              {fetchedData.elements.length != 0 ? fetchedData.elements.map((item, index) => (
+                <div
+                  className="group relative bg-white shadow-md text-black m-2 h-auto rounded-lg p-1 flex items-center"
+                  key={index}
+                  
+                >
+                  <p className="before:content-['🔷'] before:mr-2 flex-1">
+                    {item.name}
+                  </p>
+                  <div className="absolute right-2 space-4">
+                    <button
+                    className="text-gray-500 invisible group-hover:visible hover:text-red-500 transition-colors duration-200 focus:outline-none"
+                    onClick={()=>{handleDelete("elements", item.id)}}
+                  >
+                    ✖
+                  </button>
+                  <button
+                      className="text-gray-500 invisible group-hover:visible hover:text-red-500 transition-colors duration-200 focus:outline-none"
+                      onClick={() => openElementModal(item.id)}
+                    >
+                      📝
+                    </button>
+                  </div>
+                </div>
               )) : <p>no Elements yet</p>}
             </div>
             <div className="flex flex-col mx-10 my-10 h-[300px] w-[200px] p-4 bg-gray-100 rounded-lg shadow-lg overflow-auto scrollbar-hide">
               <p className="font-bold text-center my-1">Nodes</p>
-              {fetchedData.elements ? fetchedData.nodes.map((item, index) => (
-                <p className=" before:content-['📍'] before:mr-2 bg-white shadow-md text-black m-2 h-auto rounded-lg p-1"
+              {fetchedData.nodes.length != 0 ? fetchedData.nodes.map((item, index) => (
+                <div
+                  className="group relative bg-white shadow-md text-black m-2 h-auto rounded-lg p-1 flex items-center"
                   key={index}
-                  style={{
-                    fontWeight: item.name === intersectedName ? "bold" : "normal",
-                  }}
+                  
                 >
-                  {item.name}
-                </p>
+                  <p className="before:content-['📍'] before:mr-2 flex-1">
+                    {item.name}
+                  </p>
+                  <div className="absolute right-2 space-4">
+                    <button
+                    className="text-gray-500 invisible group-hover:visible hover:text-red-500 transition-colors duration-200 focus:outline-none"
+                    onClick={()=>{handleDelete("nodes", item.id)}}
+                  >
+                    ✖
+                  </button>
+                  <button
+                      className="text-gray-500 invisible group-hover:visible hover:text-red-500 transition-colors duration-200 focus:outline-none"
+                      onClick={() => openNodeModal(item.id)}
+                    >
+                      📝
+                    </button>
+                  </div>
+                  
 
-              )) : <p>No Nodes yet</p>}
+                </div>
+              )) : <p>no Nodes yet</p>}
             </div>
           </div>
         </div>
       ) : (
         <p>Loading...</p>
       )}
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        {selectedModal=="node" ? modalNodeId && <AddNode nodeId={modalNodeId} onEditted={onEditted}/> 
+        : selectedModal=="element" ? modalNodeId && <AddElement elementId={modalNodeId} projectId={projectId} onEditted={onEditted}/> : <></>}
+        
+      </Modal>
     </div>
   );
 }

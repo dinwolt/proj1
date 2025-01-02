@@ -4,9 +4,11 @@ import type { NextApiRequest, NextApiResponse } from "next";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { id } = req.query;
     console.log(req.query)
-    const projectId = parseInt(id as string, 10); // Convert to number
+    const dataId = parseInt(id as string, 10);
+    const updatedData = req.body
 
-  if (isNaN(projectId)) {
+
+  if (isNaN(dataId)) {
     console.log("Invalid or missing ID parameter")
     return res.status(400).json({ message: "Invalid or missing ID parameter" });
   }
@@ -18,23 +20,48 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: {
           elements: {
             some: {
-              id: projectId, // Filter nodes associated with the given elementId
+              id: dataId,
             },
           },
         },
         select: {
           coordinates: true,
-          name:true // Retrieve only the coordinates field
+          name:true, 
+          id: true
         },
       });
       
       console.log(nodesWithCoordinates);
 
       return res.status(200).json(nodesWithCoordinates);
-    } else if (req.method === "POST") {
-      console.log("im here")
+    } else if (req.method === "PUT") {
+      return res.status(200).json(updatedData);
+      const currentElement = await prisma.element.findUnique({
+        where: { id: dataId },
+        include: { nodes: true },
+      });
 
-    } else {
+
+    } 
+    else if (req.method == "DELETE"){
+      try {
+        if (!id) {
+          return res.status(400).json({ error: 'Element ID is required' });
+        }
+  
+        const deletedElement = await prisma.element.delete({
+          where: {
+            id: dataId, 
+          },
+        });
+  
+        return res.status(200).json(deletedElement);
+      } catch (error) {
+        console.error('Error deleting element:', error);
+        return res.status(500).json({ error: 'Error deleting element' });
+      }
+    }
+    else {
       res.status(405).json({ message: "Method Not Allowed" });
     }
   } catch (error) {

@@ -6,6 +6,8 @@ import "@/app/globals.css"
 import { Project } from "@prisma/client";
 import AllData from "@/components/AllData"
 import Modal from "@/components/Modal"
+import ProjectData from "@/components/ProjectData"
+import { int } from "three/tsl"
 
 
 function ProjectPage() {
@@ -13,6 +15,10 @@ function ProjectPage() {
     const { project } = router.query;
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
     const [currentProject, setCurrentProject] = useState({
         name: "",
@@ -32,8 +38,7 @@ function ProjectPage() {
                 setLoading(false)
             }
         }
-    }, [project]);
-    {/**data.projectId */ }
+    }, [project])
     const [isNode, setIsNode] = useState(false)
     const [isElement, setIsElement] = useState(false)
     const [formSubmitted, setFormSubmitted] = useState(true);
@@ -56,21 +61,21 @@ function ProjectPage() {
 
                     <AllData projectId={currentProject.id}></AllData>
                     <button
-                        onClick={() => setShowModal(true)}
+                        onClick={openModal}
                         className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600"
                     >
                         Open Modal
                     </button>
-                    <Modal
-                        showModal={showModal}
-                        setShowModal={setShowModal}
-                        projectId={currentProject.id}
-                    />
+                    <Modal isOpen = {isModalOpen} onClose={closeModal}
+                       
+                    >
+                        <ProjectData projectId = {currentProject.id}/>
+                    </Modal>
                 </div>
             ) : (
                 <>
                     {isNode && <AddNode project={currentProject} onFormSubmit={handleFormSubmit} />}
-                    {isElement && <AddElement project={currentProject} onFormSubmit={handleFormSubmit} />}
+                    {isElement && <AddElement projectId={currentProject.id} onFormSubmit={handleFormSubmit} />}
                 </>
             )}
 
