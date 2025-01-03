@@ -1,35 +1,35 @@
-"use client";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { useGlobalContext } from "./GlobalContext";
-import React from "react";
+"use client"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import axios from "axios"
+import { useGlobalContext } from "./GlobalContext"
+import React from "react"
 
 type Project = {
-  id: number;
-  name: string;
-  description: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
+  id: number
+  name: string
+  description: string | null
+  createdAt: string
+  updatedAt: string
+}
 
 const Navbar = () => {
-  const { refreshKey } = useGlobalContext();
-  const [projectsData, setProjectsData] = useState<Project[]>([]);
+  const { refreshKey } = useGlobalContext()
+  const [projectsData, setProjectsData] = useState<Project[]>([])
 
   React.useEffect(() => {
-    console.log("Navbar re-rendered due to project creation.");
+    console.log("Navbar re-rendered due to project creation.")
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('/api/projects');
-        setProjectsData(response.data);
+        const response = await axios.get('/api/projects')
+        setProjectsData(response.data)
       } catch (error) {
-        console.error("Error fetching project:", error);
-        alert('Error fetching projects data');
+        console.error("Error fetching project:", error)
+        alert('Error fetching projects data')
       }
-    };
-    fetchProjects();
-  }, [refreshKey]);
+    }
+    fetchProjects()
+  }, [refreshKey])
 
 
   return (
@@ -72,7 +72,7 @@ const Navbar = () => {
       </div>
     </nav>
 
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

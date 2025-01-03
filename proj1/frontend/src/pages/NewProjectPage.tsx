@@ -1,56 +1,59 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/router";
+"use client"
+import { useState } from "react"
+import { useRouter } from "next/router"
 import "@/app/globals.css"
-import axios from "axios";
-import { Project } from "@prisma/client";
-import { useGlobalContext } from "@/components/GlobalContext";
+import axios from "axios"
+import { Project } from "@prisma/client"
+import { useGlobalContext } from "@/components/GlobalContext"
 
 
 function NewProjectsPage() {
-    const { triggerRefresh } = useGlobalContext();
+    const { triggerRefresh } = useGlobalContext()
     const [formData, setFormData] = useState({
         id: "",
         name: "",
-    });
-    const router = useRouter();
+    })
+    const router = useRouter()
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        let fieldName: string = e.target.name;
-        let fieldValue: string = e.target.value;
-        setFormData((prevState) => ({ ...prevState, [fieldName]: fieldValue }));
-    };
+        let fieldName: string = e.target.name
+        let fieldValue: string = e.target.value
+        setFormData((prevState) => ({ ...prevState, [fieldName]: fieldValue }))
+    }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+        e.preventDefault()
 
         try {
-            const data ={name:formData.name, createdAt: new Date(), nodes: [], elements:[]}
-            const response = await axios.post('/api/projects', data);
-            alert(`Project created successfully`)
-            triggerRefresh();
-            router.push({
-                pathname: '/ProjectPage',
-                query: {
-                    project: JSON.stringify(response.data), 
-                  },
-            });
-         }
-        catch(error) {
+            if (formData.name == "") alert("Project Name cannot be empty")
+            else {
+                const data = { name: formData.name, createdAt: new Date(), nodes: [], elements: [] }
+                const response = await axios.post('/api/projects', data)
+                alert(`Project created successfully`)
+                triggerRefresh()
+                router.push({
+                    pathname: '/ProjectPage',
+                    query: {
+                        project: JSON.stringify(response.data),
+                    },
+                })
+            }
+        }
+        catch (error) {
             if (axios.isAxiosError(error) && error.response) {
-                const data = error.response.data;
+                const data = error.response.data
                 if (data.error) {
-                  alert("Name of the project is taken, please create another name."); 
+                    alert("Name of the project is taken, please create another name.")
                 } else {
                     alert('Failed to create project. Please try again later.')
                 }
-              } else {
+            } else {
                 alert('An unexpected error occurred. Please try again later.')
-              }
-         }
+            }
+        }
 
-        
-    };
+
+    }
 
     return (
         <div className="flex justify-center items-center h-screen p-5 overflow-x-hidden">
@@ -73,7 +76,7 @@ function NewProjectsPage() {
                 </button>
             </form>
         </div>
-    );
+    )
 }
 
-export default NewProjectsPage;
+export default NewProjectsPage

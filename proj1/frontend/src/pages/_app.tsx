@@ -1,8 +1,8 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import "@/app/globals.css"; 
-import { AppProps } from "next/app";
-import { GlobalProvider } from "@/components/GlobalContext";
+import Navbar from "@/components/Navbar"
+import Footer from "@/components/Footer"
+import "@/app/globals.css" 
+import { AppProps } from "next/app"
+import { GlobalProvider } from "@/components/GlobalContext"
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
@@ -11,7 +11,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
       <Component {...pageProps} />
       <Footer />
     </GlobalProvider>
-  );
-};
+  )
+}
 
-export default MyApp;
+export default MyApp

@@ -1,27 +1,27 @@
-import { useState, useEffect } from "react";
-import { io } from "socket.io-client";
+import { useState, useEffect } from "react"
+import { io } from "socket.io-client"
 
-const socket = io("http://127.0.0.1:5000");
+const socket = io("http://127.0.0.1:5000")
 type ProjectStats = {
-    project_id: number;
-    node_count: number;
-    element_count: number;
-  };
+    project_id: number
+    node_count: number
+    element_count: number
+  }
 
   type props = {
-    projectId: number;
+    projectId: number
   }
 
 
 export default function ProjectData({projectId}:props){
-    const [projectStats, setProjectStats] = useState<ProjectStats | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
+    const [projectStats, setProjectStats] = useState<ProjectStats | null>(null)
+    const [loading, setLoading] = useState<boolean>(false)
+    const [error, setError] = useState<string | null>(null)
   
     useEffect(() => {
       socket.on("connect", () => {
         console.log("Connected to server")
-      });
+      })
   
       socket.on("response_data", (data: any) => {
         console.log("Received data:", data)
@@ -33,13 +33,13 @@ export default function ProjectData({projectId}:props){
           setProjectStats(data)
           setError(null)
         }
-      });
+      })
   
       return () => {
-        socket.off("connect");
-        socket.off("response_data");
-      };
-    }, []);
+        socket.off("connect")
+        socket.off("response_data")
+      }
+    }, [])
   
     const fetchProjectData = async () => {
       if (!loading) {
@@ -51,7 +51,7 @@ export default function ProjectData({projectId}:props){
           socket.emit("request_data", { projectId })
         }, 1000)
       }
-    };
+    }
   
     useEffect(() => {
      
@@ -85,5 +85,5 @@ export default function ProjectData({projectId}:props){
         <p className="text-gray-600">No data available for this project.</p>
       )}
     </div>
-    );
+    )
 }

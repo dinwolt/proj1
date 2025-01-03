@@ -1,120 +1,122 @@
-import { useEffect, useState } from "react";
-import "@/app/globals.css";
+import { useEffect, useState } from "react"
+import "@/app/globals.css"
 
 type NodeProps = {
-    projectId?: number;
-    onFormSubmit?: () => void;
-    elementId?: number;
-    onEditted?: () => void;
-};
+    projectId?: number
+    onFormSubmit?: () => void
+    elementId?: number
+    onEditted?: () => void
+}
 
 type Node = {
-    id: number;
-    name: string;
-    coordinates: Record<string, unknown>;
-    projectId: number;
-};
+    id: number
+    name: string
+    coordinates: Record<string, unknown>
+    projectId: number
+}
 
 type ProjectData = {
-    elements: [];
-    nodes: Node[];
-};
+    elements: []
+    nodes: Node[]
+}
 
 function AddElement({ projectId, onFormSubmit, elementId, onEditted }: NodeProps) {
-    const [nodeList, setNodeList] = useState<Node[]>([]);
-    const [selectedList, setSelectedList] = useState<Node[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [fetchedNodes, setFetchedNodes] = useState<Node[]>([]);
-    const [elementName, setElementName] = useState("");
+    const [nodeList, setNodeList] = useState<Node[]>([])
+    const [selectedList, setSelectedList] = useState<Node[]>([])
+    const [loading, setLoading] = useState(true)
+    const [fetchedNodes, setFetchedNodes] = useState<Node[]>([])
+    const [elementName, setElementName] = useState("")
 
     const fetchData = async (url: string, options?: RequestInit) => {
-        const response = await fetch(url, options);
+        const response = await fetch(url, options)
         if (!response.ok) {
-            throw new Error(`Error: ${response.statusText}`);
+            throw new Error(`Error: ${response.statusText}`)
         }
-        return response.json();
-    };
+        return response.json()
+    }
 
     useEffect(() => {
         const fetchProjectData = async () => {
-            if (!projectId) return;
+            if (!projectId) return
 
             try {
-                const projectData: ProjectData = await fetchData(`/api/projects/${projectId}`);
-                setFetchedNodes(projectData.nodes);
+                const projectData: ProjectData = await fetchData(`/api/projects/${projectId}`)
+                setFetchedNodes(projectData.nodes)
 
                 if (!elementId) {
-                    setNodeList(projectData.nodes);
+                    setNodeList(projectData.nodes)
                 }
             } catch (error) {
-                console.error("Error fetching project data:", error);
-                alert("Failed to fetch project data.");
+                console.error("Error fetching project data:", error)
+                alert("Failed to fetch project data.")
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
-        };
+        }
 
-        fetchProjectData();
-    }, [projectId, elementId]);
+        fetchProjectData()
+    }, [projectId, elementId])
 
 
     useEffect(() => {
         const fetchElementData = async () => {
-            if (!elementId || fetchedNodes.length === 0) return;
+            if (!elementId || fetchedNodes.length === 0) return
 
             try {
-                const elementData = await fetchData(`/api/elements/${elementId}`);
-                const associatedNodes: Node[] = elementData.nodes;
+                const elementData = await fetchData(`/api/elements/${elementId}`)
+                const associatedNodes: Node[] = elementData.nodes
 
-                setElementName(elementData.elementName);
+                setElementName(elementData.elementName)
                 console.log(elementData)
-                setSelectedList(associatedNodes);
+                setSelectedList(associatedNodes)
 
                 const remainingNodes = fetchedNodes.filter(
                     (node) => !associatedNodes.some((selected) => selected.id === node.id)
-                );
-                setNodeList(remainingNodes);
+                )
+                setNodeList(remainingNodes)
             } catch (error) {
-                console.error("Error fetching element data:", error);
-                alert("Failed to fetch element data.");
+                console.error("Error fetching element data:", error)
+                alert("Failed to fetch element data.")
             }
-        };
+        }
 
-        fetchElementData();
-    }, [elementId, fetchedNodes]);
+        fetchElementData()
+    }, [elementId, fetchedNodes])
 
     const handleSelect = (node: Node) => {
-        setSelectedList((prev) => [...prev, node]);
-        setNodeList((prev) => prev.filter((n) => n.id !== node.id));
-    };
+        setSelectedList((prev) => [...prev, node])
+        setNodeList((prev) => prev.filter((n) => n.id !== node.id))
+    }
 
     const handleDeselect = (node: Node) => {
-        setSelectedList((prev) => prev.filter((n) => n.id !== node.id));
-        setNodeList((prev) => [...prev, node]);
-    };
+        setSelectedList((prev) => prev.filter((n) => n.id !== node.id))
+        setNodeList((prev) => [...prev, node])
+    }
 
     const determineElementType = (nodeCount: number) => {
         switch (nodeCount) {
             case 1:
-                return "point";
+                return "point"
             case 2:
-                return "line";
+                return "line"
             case 3:
-                return "triangle";
+                return "triangle"
             case 4:
-                return "square";
+                return "square"
             default:
-                alert("You can't have more than 4 nodes in an element.");
-                return null;
+                alert("from 1 to 4 nodes should be selected.")
+                return null
         }
-    };
+    }
 
     const handleSubmit = async () => {
-        const nodeIds = selectedList.map((node) => node.id);
-        const elementType = determineElementType(nodeIds.length);
-        if (!elementType) return;
+        const nodeIds = selectedList.map((node) => node.id)
+        const elementType = determineElementType(nodeIds.length)
+        if (!elementType) return
 
         try {
+            if(elementName=="") alert("Name cannot be empy")
+                 else{
             if (projectId && !elementId) {
                 const response = await fetch(`/api/elements`, {
                     method: "POST",
@@ -125,14 +127,14 @@ function AddElement({ projectId, onFormSubmit, elementId, onEditted }: NodeProps
                         projectId,
                         nodes: nodeIds,
                     }),
-                });
+                })
 
                 if (!response.ok) {
-                    throw new Error("Failed to create element.");
+                    throw new Error("Failed to create element.")
                 }
 
-                const data = await response.json();
-                const newElementId = data.id;
+                const data = await response.json()
+                const newElementId = data.id
 
 
                 await Promise.all(
@@ -143,27 +145,30 @@ function AddElement({ projectId, onFormSubmit, elementId, onEditted }: NodeProps
                             body: JSON.stringify({ nodeId, elementId: newElementId }),
                         })
                     )
-                );
-
-                if (onFormSubmit) onFormSubmit();
+                )
+                alert("Element created successfully")
+                if (onFormSubmit) onFormSubmit()
+            
             } else if (elementId) {
+                
                 await fetch(`/api/elements/${elementId}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ nodes: nodeIds, type: elementType, name: elementName }),
-                });
-                alert("Element updated successfully.");
+                })
+                alert("Element updated successfully.")
                 if (onEditted) {
-                    onEditted();
+                    onEditted()
                 }
-            }
+            }}
+        
         } catch (error) {
-            console.error("Error submitting element:", error);
-            alert("Failed to submit element. Please try again.");
+            console.error("Error submitting element:", error)
+            alert("Failed to submit element. Please try again.")
         }
-    };
+    }
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <p>Loading...</p>
 
     return (
         <div className="flex flex-col items-center w-full max-w-[600px] mx-auto p-4 bg-gray-50 rounded-lg shadow-lg space-y-6">
@@ -176,8 +181,9 @@ function AddElement({ projectId, onFormSubmit, elementId, onEditted }: NodeProps
                     id="element-name"
                     className="flex-1 border-b-2 border-gray-500 bg-transparent focus:outline-none focus:border-blue-500 text-sm p-1"
                     type="text"
-                    value={elementId ? elementName : ""}
+                    value={elementName}
                     onChange={(e) => setElementName(e.target.value)}
+                    
                 />
             </div>
             
@@ -226,7 +232,7 @@ function AddElement({ projectId, onFormSubmit, elementId, onEditted }: NodeProps
                 </button>
             </div>
         </div>
-    );
+    )
 }
 
-export default AddElement;
+export default AddElement

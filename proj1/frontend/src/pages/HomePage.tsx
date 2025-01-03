@@ -1,13 +1,9 @@
-"use client";
+"use client"
 import "@/app/globals.css"
-import Link from "next/link";
-
+import Link from "next/link"
 
 function HomePage() {
-
-
   return (
-    
     <div className="flex justify-center items-center space-x-4 flex-wrap h-screen overflow-x-hidden">
     <Link href="/ProjectsPage">
       <button
@@ -29,9 +25,7 @@ function HomePage() {
       </button>
     </Link>
   </div>
-  
-
-  );
+  )
 }
 
 
