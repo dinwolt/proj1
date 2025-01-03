@@ -30,7 +30,6 @@ function AddElement({ projectId, onFormSubmit, elementId, onEditted }: NodeProps
     const [fetchedNodes, setFetchedNodes] = useState<Node[]>([]);
     const [elementName, setElementName] = useState("");
 
-    // Fetch projects when projectId changes
     useEffect(() => {
         if (projectId) {
             const fetchProjects = async () => {
@@ -64,15 +63,17 @@ function AddElement({ projectId, onFormSubmit, elementId, onEditted }: NodeProps
                         },
                     });
                     if (response.ok) {
-                        const data: Node[] = await response.json();
-                        setSelectedList(data.map((item: { id: number; name: string }) => ({
+                        const data= await response.json();
+                        const nodesData:Node[] = data.nodes
+                        setElementName(data.name)
+                        setSelectedList(nodesData.map((item: { id: number; name: string }) => ({
                             id: item.id,
                             name: item.name,
                         })));
     
                         console.log(`DATA NODES ${data}`);
                         const chosen = fetchedNodes.filter((node) =>
-                            !data.some((existingNode) => existingNode.id === node.id)
+                            !nodesData.some((existingNode) => existingNode.id === node.id)
                         );
                         setNodeList(chosen);
                         console.log(`Filtered Node List: ${chosen}`);
@@ -106,8 +107,28 @@ function AddElement({ projectId, onFormSubmit, elementId, onEditted }: NodeProps
     const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
         const filteredNodes = selectedList.map((node) => node.id);
         type ElementType = "point" | "line" | "triangle" | "square";
-        let elementType:ElementType;
-
+        let elementType:ElementType = "point";
+ switch (filteredNodes.length) {
+                case 1:
+                    elementType = "point";
+                    
+                    break;
+                case 2:
+                    elementType = "line";
+                    
+                    break;
+                case 3:
+                    elementType = "triangle";
+                    
+                    break;
+                case 4:
+                    elementType = "square";
+                    
+                    break;
+                default:
+                    alert("You can't have more than 4 nodes in an element.");
+                    break;
+            }
         if (projectId && onFormSubmit) {
             const executeSubmit = async () => {
                 try {
@@ -138,38 +159,21 @@ function AddElement({ projectId, onFormSubmit, elementId, onEditted }: NodeProps
                     }
                 }
             };
-
-            switch (filteredNodes.length) {
-                case 1:
-                    elementType = "point";
-                    executeSubmit();
-                    break;
-                case 2:
-                    elementType = "line";
-                    executeSubmit();
-                    break;
-                case 3:
-                    elementType = "triangle";
-                    executeSubmit();
-                    break;
-                case 4:
-                    elementType = "square";
-                    executeSubmit();
-                    break;
-                default:
-                    alert("You can't have more than 4 nodes in an element.");
-                    break;
-            }
+            executeSubmit()
+           
         }
 
         if (elementId) {
+            console.log({ elementId: elementId, updateNodes: filteredNodes })
             const response = await fetch(`/api/elements/${elementId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ elementId: elementId, updateNodes: filteredNodes }),
+                body: JSON.stringify({nodes: filteredNodes,type:elementType }),
             });
+
+            alert(await response.json)
         }
     };
 
@@ -184,6 +188,7 @@ function AddElement({ projectId, onFormSubmit, elementId, onEditted }: NodeProps
                 <input
                     className="border-b-2 border-gray-500 bg-transparent focus:outline-none focus:border-blue-500"
                     type="text"
+                    value={elementName}
                     onChange={handleInput}
                 />
             </div>

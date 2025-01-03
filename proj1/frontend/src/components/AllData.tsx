@@ -97,7 +97,7 @@ export default function AllData({ projectId }: DataProps) {
   const fetchCoordinates = async (elementId: number) => {
     try {
       const response = await axios.get(`/api/elements/${elementId}`);
-      const nodePoints = response.data;
+      const nodePoints = response.data.nodes;
       const points: THREE.Vector3[] = [];
       console.log(nodePoints);
       nodePoints.forEach((item: Node) => {
