@@ -287,35 +287,40 @@ export default function AllData({ projectId }: DataProps) {
 
 
   return (
-    <div>
-      {fetchedData ? (
-        <div className="flex flex-col justify-center items-center">
-          {fetchedData.elements.length != 0 ? (<div
-            ref={canvasRef}
-            className="w-[800px] h-[600px] my-3"
-
-          />) : <></>}
-          {intersectedName ? <p className="font-bold">Last element chosen: {intersectedName}</p> : <p></p>}
-          <div className="flex flex-row w-auto h-auto justify-center items-center">
-            <div className="flex flex-col mx-10 my-10 h-[300px] w-[200px] p-4 bg-gray-100 rounded-lg shadow-lg overflow-auto scrollbar-hide">
-              <p className="font-bold text-center my-1">Elements</p>
-              {fetchedData.elements.length != 0 ? fetchedData.elements.map((item, index) => (
-                <div
-                  className="group relative bg-white shadow-md text-black m-2 h-auto rounded-lg p-1 flex items-center"
-                  key={index}
-                  
-                >
-                  <p className="before:content-['🔷'] before:mr-2 flex-1">
+<div>
+  {fetchedData ? (
+    <div className="flex flex-col justify-center items-center">
+      {fetchedData.elements.length !== 0 && (
+        <div ref={canvasRef} className="w-[800px] h-[600px] my-3" />
+      )}
+      {intersectedName ? (
+        <p className="font-bold">Last element chosen: {intersectedName}</p>
+      ) : (
+        <p></p>
+      )}
+      <div className="flex flex-row w-auto h-auto justify-center items-center">
+        <div className="flex flex-col mx-10 my-10 h-[300px] w-[200px] p-4 bg-gray-100 rounded-lg shadow-lg overflow-auto scrollbar-hide">
+          <p className="font-bold text-center my-1">Elements</p>
+          {fetchedData.elements.length !== 0 ? (
+            fetchedData.elements.map((item, index) => (
+              <div
+                className="group relative bg-white shadow-md text-black m-2 h-auto rounded-lg p-1 flex items-center hover:bg-blue-100  focus:outline-none"
+                key={index}
+              >
+                <div className="flex flex-row w-full items-center">
+                  <p className="before:content-['🔷'] before:mr-2 flex-1 truncate">
                     {item.name}
                   </p>
-                  <div className="absolute right-2 space-4">
+                  <div className="flex space-x-2">
                     <button
-                    className="text-gray-500 invisible group-hover:visible hover:text-red-500 transition-colors duration-200 focus:outline-none"
-                    onClick={()=>{handleDelete("elements", item.id)}}
-                  >
-                    ✖
-                  </button>
-                  <button
+                      className="text-gray-500 invisible group-hover:visible hover:text-red-500 transition-colors duration-200 focus:outline-none"
+                      onClick={() => {
+                        handleDelete("elements", item.id);
+                      }}
+                    >
+                      ✖
+                    </button>
+                    <button
                       className="text-gray-500 invisible group-hover:visible hover:text-red-500 transition-colors duration-200 focus:outline-none"
                       onClick={() => openElementModal(item.id)}
                     >
@@ -323,48 +328,66 @@ export default function AllData({ projectId }: DataProps) {
                     </button>
                   </div>
                 </div>
-              )) : <p>no Elements yet</p>}
-            </div>
-            <div className="flex flex-col mx-10 my-10 h-[300px] w-[200px] p-4 bg-gray-100 rounded-lg shadow-lg overflow-auto scrollbar-hide">
-              <p className="font-bold text-center my-1">Nodes</p>
-              {fetchedData.nodes.length != 0 ? fetchedData.nodes.map((item, index) => (
-                <div
-                  className="group relative bg-white shadow-md text-black m-2 h-auto rounded-lg p-1 flex items-center"
-                  key={index}
-                  
-                >
-                  <p className="before:content-['📍'] before:mr-2 flex-1">
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-gray-500">No Elements yet</p>
+          )}
+        </div>
+
+        <div className="flex flex-col mx-10 my-10 h-[300px] w-[200px] p-4 bg-gray-100 rounded-lg shadow-lg overflow-auto scrollbar-hide">
+          <p className="font-bold text-center my-1">Nodes</p>
+          {fetchedData.nodes.length !== 0 ? (
+            fetchedData.nodes.map((item, index) => (
+              <div
+                className="group relative bg-white shadow-md text-black m-2 h-auto rounded-lg p-1 flex items-center hover:bg-blue-100 focus:outline-none"
+                key={index}
+              >
+                <div className="flex flex-row w-full items-center">
+                  <p className="before:content-['📍'] before:mr-2 flex-1 truncate">
                     {item.name}
                   </p>
-                  <div className="absolute right-2 space-4">
+                  <div className="flex space-x-2">
                     <button
-                    className="text-gray-500 invisible group-hover:visible hover:text-red-500 transition-colors duration-200 focus:outline-none"
-                    onClick={()=>{handleDelete("nodes", item.id)}}
-                  >
-                    ✖
-                  </button>
-                  <button
+                      className="text-gray-500 invisible group-hover:visible hover:text-red-500 transition-colors duration-200 focus:outline-none"
+                      onClick={() => {
+                        handleDelete("nodes", item.id);
+                      }}
+                    >
+                      ✖
+                    </button>
+                    <button
                       className="text-gray-500 invisible group-hover:visible hover:text-red-500 transition-colors duration-200 focus:outline-none"
                       onClick={() => openNodeModal(item.id)}
                     >
                       📝
                     </button>
                   </div>
-                  
-
                 </div>
-              )) : <p>no Nodes yet</p>}
-            </div>
-          </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-gray-500">No Nodes yet</p>
+          )}
         </div>
-      ) : (
-        <p>Loading...</p>
-      )}
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
-        {selectedModal=="node" ? modalNodeId && <AddNode nodeId={modalNodeId} onEditted={onEditted}/> 
-        : selectedModal=="element" ? modalNodeId && <AddElement elementId={modalNodeId} projectId={projectId} onEditted={onEditted}/> : <></>}
-        
-      </Modal>
+      </div>
     </div>
+  ) : (
+    <p>Loading...</p>
+  )}
+
+  <Modal isOpen={isModalOpen} onClose={closeModal}>
+    {selectedModal === "node" ? (
+      modalNodeId && <AddNode nodeId={modalNodeId} onEditted={onEditted} />
+    ) : selectedModal === "element" ? (
+      modalNodeId && (
+        <AddElement elementId={modalNodeId} projectId={projectId} onEditted={onEditted} />
+      )
+    ) : (
+      <></>
+    )}
+  </Modal>
+</div>
+
   );
 }

@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useGlobalContext } from "@/components/GlobalContext";
 
 
 interface Project {
@@ -17,6 +18,7 @@ interface Project {
 
 function ProjectsPage() {
   const router = useRouter()
+  const { triggerRefresh } = useGlobalContext();
   const [projects, setProjects] = useState<Project[]>([])
   const [updated, setUpdated] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -35,7 +37,7 @@ function ProjectsPage() {
 
       if (response.ok){
         alert(response.json())
-        
+        triggerRefresh();
         setUpdated(true)
       }
       else {

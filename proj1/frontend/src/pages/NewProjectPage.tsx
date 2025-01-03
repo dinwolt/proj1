@@ -4,8 +4,11 @@ import { useRouter } from "next/router";
 import "@/app/globals.css"
 import axios from "axios";
 import { Project } from "@prisma/client";
+import { useGlobalContext } from "@/components/GlobalContext";
+
 
 function NewProjectsPage() {
+    const { triggerRefresh } = useGlobalContext();
     const [formData, setFormData] = useState({
         id: "",
         name: "",
@@ -20,13 +23,12 @@ function NewProjectsPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        //console.log(formData);
 
         try {
             const data ={name:formData.name, createdAt: new Date(), nodes: [], elements:[]}
             const response = await axios.post('/api/projects', data);
             alert(`Project created successfully`)
-            
+            triggerRefresh();
             router.push({
                 pathname: '/ProjectPage',
                 query: {

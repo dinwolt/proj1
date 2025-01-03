@@ -49,23 +49,26 @@ function ProjectPage() {
     if (loading) { return <p>Loading...</p> }
     return (
         <div className="flex flex-col justify-center items-center space-x-4 h-screen">
-            <div className="buttons-container">
+            <div className="py-6">
                 <button className="h-12 w-36 m-2 bg-white border border-black-100 rounded-lg shadow-md hover:bg-blue-500 hover:text-white focus:outline-none"
                     onClick={() => { setIsNode(true); setIsElement(false); setFormSubmitted(false) }}>Add Node</button>
+                    <button
+                        onClick={openModal}
+                        className="h-12 w-36 px-6 py-2 bg-blue-500 text-white text-center font-semibold rounded-lg shadow-md hover:bg-blue-600"
+                        disabled={formSubmitted ? false :true }
+                    >
+                        Analyse
+                    </button>
                 <button className="h-12 w-36 m-2 bg-white border border-black-100 rounded-lg shadow-md hover:bg-blue-500 hover:text-white focus:outline-none"
                     onClick={() => { setIsNode(false); setIsElement(true); setFormSubmitted(false) }}>Add Element</button>
+            
             </div>
 
             {formSubmitted ? (
                 <div className="flex flex-col justify-center items-center">
 
                     <AllData projectId={currentProject.id}></AllData>
-                    <button
-                        onClick={openModal}
-                        className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600"
-                    >
-                        Open Modal
-                    </button>
+                    
                     <Modal isOpen = {isModalOpen} onClose={closeModal}
                        
                     >

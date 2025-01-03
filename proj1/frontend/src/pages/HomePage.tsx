@@ -5,9 +5,6 @@ import Link from "next/link";
 
 function HomePage() {
 
-  function handleClick() {
-    //console.log('i work');
-  }
 
   return (
     
@@ -16,7 +13,6 @@ function HomePage() {
       <button
         type="button"
         className="px-6 py-3 h-[200px] w-[200px] text-lg bg-blue-400 text-white rounded-lg hover:bg-blue-600 focus:outline-none"
-        onClick={handleClick}
         disabled={false}
       >
         프로젝트 이어하기
@@ -27,7 +23,6 @@ function HomePage() {
       <button
         type="button"
         className="px-6 py-3 h-[200px] w-[200px] text-lg bg-blue-400 text-white rounded-lg hover:bg-blue-600 focus:outline-none"
-        onClick={handleClick}
         disabled={false}
       >
         새 프로젝트 생성

@@ -1,4 +1,3 @@
-// Modal.tsx
 import React from 'react';
 
 interface ModalProps {
@@ -16,7 +15,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white p-6 rounded-lg shadow-lg w-96 relative"
+        className="bg-white p-6 rounded-lg shadow-lg max-w-[600px] relative"
         onClick={(e) => e.stopPropagation()}
       >
         {children}

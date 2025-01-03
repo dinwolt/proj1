@@ -83,6 +83,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         nodes: {
                             connect: updatedData.nodes.map((id: number) => ({ id })),
                         },
+                        type: updatedData.type,
+                        name: updatedData.name
                     },
                 });
 

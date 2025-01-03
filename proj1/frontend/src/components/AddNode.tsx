@@ -122,7 +122,7 @@ function AddNode({ project, onFormSubmit, nodeId, onEditted }: NodeProps) {
     };
 
     return (
-        <div className="flex flex-col mx-10 my-10 justify-center h-auto w-auto p-6 bg-gray-100 rounded-lg shadow-lg">
+        <div className="flex flex-col mx-auto justify-center h-auto w-auto p-6 bg-gray-100 rounded-lg shadow-lg">
             <p className="text-center font-semibold my-2">Enter node coordinates</p>
             <form onSubmit={handleSubmit} className="flex flex-col w-full max-w-md justify-center items-center space-y-4">
                 <div className="flex flex-col w-full space-y-2">
